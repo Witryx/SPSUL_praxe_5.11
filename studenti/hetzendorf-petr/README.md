@@ -117,3 +117,24 @@ Bez parametru skript vybere z dostupných modelů Gemini 3.5 Flash, případně 
 
 Při programování jsem zkoušel Gemini a kvůli jeho přetížení přešel na GPT-6.1 Terra přes OpenCode.
 
+## Evaluace
+
+Po instalaci závislostí a nastavení příslušného klíče v `.env` lze spustit evaluaci například takto:
+
+```sh
+node src/eval.js --provider groq --model openai/gpt-oss-20b --split dev --prompt v1
+node src/eval.js --provider gemini --model models/gemini-3.5-flash --split dev --prompt v1
+```
+
+Parametr `--split` přijímá `dev` nebo `test`; `--prompt v1` načítá `prompts/v1.txt`. Každá objednávka se odesílá samostatně a správné odpovědi se porovnávají pouze lokálně.
+
+Podrobné výsledky jednotlivých běhů se ukládají jako JSONL do `results/`, souhrn dokončených běhů do `results/summary.json` a odpovědi pro opakované použití do `cache/`. Pokud se běh přeruší nebo selže, jeho souhrn se neuloží; soubor jednotlivých výsledků může obsahovat jen dokončené případy. Skript při HTTP 429 respektuje `Retry-After` a počet opakování je omezený. API musí vrátit počty vstupních a výstupních tokenů, jinak se běh považuje za neúplný.
+
+### Dosavadní měření
+
+Hodnoty vycházejí z `results/summary.json`; podíly a latence jsou zaokrouhleny.
+
+| Poskytovatel | Model | Prompt | Sada | Případů | Validní JSON | Úplná shoda | Položky | Adresa | Platba | Průměrná latence | Vstupní tokeny | Výstupní tokeny |
+| --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Groq | `openai/gpt-oss-20b` | v1 | dev | 15 | 100 % | 80 % | 93,33 % | 86,67 % | 100 % | 0,739 s | 5 774 | 4 844 |
+
