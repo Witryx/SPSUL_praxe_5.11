@@ -124,9 +124,14 @@ Po instalaci závislostí a nastavení příslušného klíče v `.env` lze spus
 ```sh
 node src/eval.js --provider groq --model openai/gpt-oss-20b --split dev --prompt v1
 node src/eval.js --provider gemini --model models/gemini-3.5-flash --split dev --prompt v1
+node src/eval.js --provider openrouter --model google/gemma-4-31b-it:free --split dev --prompt v1
 ```
 
 Parametr `--split` přijímá `dev` nebo `test`; `--prompt v1` načítá `prompts/v1.txt`. Každá objednávka se odesílá samostatně a správné odpovědi se porovnávají pouze lokálně.
+
+Při použití OpenRouteru skript před měřením zjišťuje zbývající denní free kvótu; při méně než 15 požadavcích nebo nedostupné kvótě měření nespustí. Mezi API voláními OpenRouteru čeká 3,2 sekundy, které se nezapočítávají do latence odpovědi.
+
+Parametr `--cache-only` přepočítá shodu vůči aktuálním referenčním odpovědím pouze z uložených odpovědí, bez síťových volání. Pokud některý záznam chybí, běh skončí bez aktualizace souhrnu.
 
 Podrobné výsledky jednotlivých běhů se ukládají jako JSONL do `results/`, souhrn dokončených běhů do `results/summary.json` a odpovědi pro opakované použití do `cache/`. Pokud se běh přeruší nebo selže, jeho souhrn se neuloží; soubor jednotlivých výsledků může obsahovat jen dokončené případy. Skript při HTTP 429 respektuje `Retry-After` a počet opakování je omezený. API musí vrátit počty vstupních a výstupních tokenů, jinak se běh považuje za neúplný.
 
@@ -136,5 +141,20 @@ Hodnoty vycházejí z `results/summary.json`; podíly a latence jsou zaokrouhlen
 
 | Poskytovatel | Model | Prompt | Sada | Případů | Validní JSON | Úplná shoda | Položky | Adresa | Platba | Průměrná latence | Vstupní tokeny | Výstupní tokeny |
 | --- | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Groq | `openai/gpt-oss-20b` | v1 | dev | 15 | 100 % | 80 % | 93,33 % | 86,67 % | 100 % | 0,739 s | 5 774 | 4 844 |
+| Groq | `openai/gpt-oss-20b` | v1 | dev | 15 | 100 % | 93,33 % | 93,33 % | 100 % | 100 % | 0,739 s | 5 774 | 4 844 |
+| Groq | `openai/gpt-oss-120b` | v1 | dev | 15 | 100 % | 86,67 % | 93,33 % | 93,33 % | 100 % | 0,889 s | 5 774 | 3 873 |
+| OpenRouter | `nvidia/nemotron-3.5-lightning:free` | v1 | dev | 15 | 100 % | 93,33 % | 93,33 % | 100 % | 100 % | 13,838 s | 5 008 | 19 501 |
+| Groq | `openai/gpt-oss-20b` | v2 | dev | 15 | 100 % | 93,33 % | 93,33 % | 100 % | 100 % | 0,684 s | 8 699 | 5 142 |
+
+### Porovnání promptů v1 a v2
+
+Prompt v2 vznikl ještě před následnou ruční kontrolou referenčních odpovědí. Zpřesňuje povinné schéma, rozdíl mezi JSON hodnotou `null` a řetězcem `"null"`, neurčené počty a adresy, osobní odběr i rozlišení objednaných a pouze zmíněných pizz. Po přepočtu na stejném modelu Groq `openai/gpt-oss-20b` a sadě dev mají oba prompty úplnou shodu 93,33 % a stejné shody jednotlivých polí. Průměrná latence činila 0,739 s u v1 a 0,684 s u v2; vstupní tokeny vzrostly z 5 774 na 8 699 a výstupní z 4 844 na 5 142.
+
+Student následně ručně zkontroloval referenční odpovědi a opravil chybný zápis chybějící adresy. Všechny čtyři dokončené běhy byly poté přepočítány z původních odpovědí v cache proti aktuálním referencím, bez API volání. Dřívější neshody proto nelze automaticky pokládat za chyby modelu.
+
+### Nedokončená měření
+
+Měření Gemini `models/gemini-3.5-flash` na sadě dev nebylo dokončeno: u případu 7 API opakovaně vrátilo HTTP 429. Není proto zahrnuto mezi dokončené běhy v souhrnu.
+
+Měření OpenRouteru `google/gemma-4-31b-it:free` na sadě dev také nebylo dokončeno: u případu 1 API opakovaně vrátilo HTTP 429. Při kontrole před během zbývalo 50 denních free požadavků.
 

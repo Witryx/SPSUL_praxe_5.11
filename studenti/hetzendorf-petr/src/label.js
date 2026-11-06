@@ -4,17 +4,20 @@ const readline = require('node:readline/promises');
 const { stdin, stdout } = require('node:process');
 
 const args = process.argv.slice(2);
-if (args.length !== 2 || args[0] !== '--split' || !['dev', 'test'].includes(args[1])) {
-  console.error('Použití: node src/label.js --split dev|test');
+const editId = args.length === 4 && args[2] === '--edit' && /^[1-9]\d*$/.test(args[3])
+  ? Number(args[3]) : null;
+if ((args.length !== 2 && !(args.length === 4 && Number.isSafeInteger(editId))) ||
+    args[0] !== '--split' || !['dev', 'test'].includes(args[1])) {
+  console.error('Použití: node src/label.js --split dev|test [--edit ID]');
   process.exitCode = 1;
 } else {
-  main(args[1]).catch((error) => {
+  main(args[1], editId).catch((error) => {
     console.error('Označování se nezdařilo:', error.message);
     process.exitCode = 1;
   });
 }
 
-async function main(split) {
+async function main(split, editId) {
   const file = path.join(__dirname, '..', 'data', `${split}.jsonl`);
   const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/).filter((line) => line.trim());
   const cases = lines.map((line, index) => {
@@ -24,6 +27,10 @@ async function main(split) {
       throw new Error(`Neplatný JSON na řádku ${index + 1} v ${file}.`);
     }
   });
+
+  if (editId !== null && !cases.some((item) => item.id === editId)) {
+    throw new Error(`Případ s ID ${editId} v sadě ${split} neexistuje.`);
+  }
 
   const rl = readline.createInterface({ input: stdin, output: stdout });
   const pizzas = ['margherita', 'salamova', 'hawai', 'quattro formaggi'];
@@ -58,7 +65,7 @@ async function main(split) {
 
   try {
     for (const item of cases) {
-      if (item.expected != null) continue;
+      if (editId !== null ? item.id !== editId : item.expected != null) continue;
 
       console.log(`\nID: ${item.id}\nVstup: ${item.input}`);
       let confirmed = false;
@@ -69,8 +76,8 @@ async function main(split) {
             polozky.push({ nazev, pocet: await askCount(nazev) });
           }
         }
-        const address = (await rl.question('Adresa (prázdná odpověď znamená null): ')).trim();
-        const expected = { polozky, adresa: address || null, platba: await askPayment() };
+        const address = (await rl.question('Adresa (prázdná odpověď nebo null znamená null): ')).trim();
+        const expected = { polozky, adresa: !address || address.toLowerCase() === 'null' ? null : address, platba: await askPayment() };
         console.log('\nExpected:');
         console.log(JSON.stringify(expected, null, 2));
         confirmed = await askYesNo('Uložit tento výsledek? (a/n): ');
@@ -91,7 +98,7 @@ async function main(split) {
         }
       }
     }
-    console.log('\nVšechny případy v této sadě jsou vyplněné.');
+    console.log(editId === null ? '\nVšechny případy v této sadě jsou vyplněné.' : '\nÚprava případu je dokončena.');
   } finally {
     rl.close();
   }
