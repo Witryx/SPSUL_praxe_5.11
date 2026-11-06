@@ -82,3 +82,36 @@ Příklad výstupu:
 
 &#x20; správnou adresu a správnou platbu.
 
+## Instalace a nastavení
+
+Nainstalujte závislosti pomocí Node.js a npm:
+
+```sh
+npm install
+```
+
+Vytvořte soubor `.env` podle `.env.example` a doplňte příslušné API klíče.
+
+## Ověření připojení
+
+```sh
+node src/smoke.js
+node src/smoke-gemini.js
+```
+
+Model Gemini lze zadat také výslovně:
+
+```sh
+node src/smoke-gemini.js --model models/gemini-3.5-flash
+```
+
+Bez parametru skript vybere z dostupných modelů Gemini 3.5 Flash, případně textový Flash-Lite.
+
+### Výsledky ověření
+
+- **Groq** (`openai/gpt-oss-20b`): odpověď „Ahoj“, `prompt_tokens`: 82, `completion_tokens`: 58.
+- **Google Gemini** (`models/gemini-3.5-flash`): odpověď „Ahoj“, `prompt_tokens`: 13, `completion_tokens`: 3. Předchozí pokus s `models/gemini-3.8-flash` skončil limitem nebo kvótou.
+- **Mistral** blokoval vytvoření klíče na bezplatném plánu, proto nebylo připojení ověřeno.
+
+Při programování jsem zkoušel Gemini a kvůli jeho přetížení přešel na GPT-6.1 Terra přes OpenCode.
+
