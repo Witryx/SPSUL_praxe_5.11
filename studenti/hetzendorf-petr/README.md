@@ -72,6 +72,8 @@ Příklad výstupu:
 
 \- Pokud text neobsahuje žádnou objednanou pizzu, polozky jsou \[].
 
+Do polozky patří pouze skutečně objednané pizzy. Pouhá zmínka, dotaz na dostupnost nebo výslovně odmítnutá pizza se nezahrnuje.
+
 \- Pořadí položek při porovnávání nerozhoduje.
 
 \- U adres ignoruji velikost písmen a nadbytečné mezery;
