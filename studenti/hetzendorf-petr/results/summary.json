@@ -69,6 +69,40 @@
       "latence_s": 0.6839883466666666,
       "tokeny_vstup": 8699,
       "tokeny_vystup": 5142
+    },
+    {
+      "model": "openai/gpt-oss-20b",
+      "poskytovatel": "groq",
+      "prompt": "v1",
+      "sada": "test",
+      "pripadu": 10,
+      "validni_json": 1,
+      "uplna_shoda": 0.8,
+      "pole": {
+        "polozky": 0.8,
+        "adresa": 1,
+        "platba": 1
+      },
+      "latence_s": 1.91376668,
+      "tokeny_vstup": 3842,
+      "tokeny_vystup": 2818
+    },
+    {
+      "model": "openai/gpt-oss-20b",
+      "poskytovatel": "groq",
+      "prompt": "v2",
+      "sada": "test",
+      "pripadu": 10,
+      "validni_json": 1,
+      "uplna_shoda": 0.7,
+      "pole": {
+        "polozky": 0.8,
+        "adresa": 0.9,
+        "platba": 1
+      },
+      "latence_s": 0.6530650100000002,
+      "tokeny_vstup": 5792,
+      "tokeny_vystup": 3029
     }
   ]
 }

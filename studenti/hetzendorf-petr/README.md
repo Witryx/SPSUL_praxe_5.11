@@ -145,8 +145,20 @@ Hodnoty vycházejí z `results/summary.json`; podíly a latence jsou zaokrouhlen
 | Groq | `openai/gpt-oss-120b` | v1 | dev | 15 | 100 % | 86,67 % | 93,33 % | 93,33 % | 100 % | 0,889 s | 5 774 | 3 873 |
 | OpenRouter | `nvidia/nemotron-3.5-lightning:free` | v1 | dev | 15 | 100 % | 93,33 % | 93,33 % | 100 % | 100 % | 13,838 s | 5 008 | 19 501 |
 | Groq | `openai/gpt-oss-20b` | v2 | dev | 15 | 100 % | 93,33 % | 93,33 % | 100 % | 100 % | 0,684 s | 8 699 | 5 142 |
+| Groq | `openai/gpt-oss-20b` | v1 | test | 10 | 100 % | 80 % | 80 % | 100 % | 100 % | 1,914 s | 3 842 | 2 818 |
+| Groq | `openai/gpt-oss-20b` | v2 | test | 10 | 100 % | 70 % | 80 % | 90 % | 100 % | 0,653 s | 5 792 | 3 029 |
+
+### Srovnání dev a test
+
+Na modelu GPT-OSS 20B dosáhl prompt v1 úplné shody 93,33 % na dev a 80 % na testu; přesnost položek klesla z 93,33 % na 80 %, zatímco adresa a platba zůstaly na 100 %.
+
+Prompt v2 dosáhl úplné shody 93,33 % na dev a 70 % na testu; položky klesly z 93,33 % na 80 %, adresa ze 100 % na 90 % a platba zůstala na 100 %. Validní JSON byl ve všech čtyřech bězích 100 %. Sady mají rozdílnou velikost: dev 15 a test 10 případů.
 
 ### Porovnání promptů v1 a v2
+
+#### Výběr před závěrečným měřením
+
+Pro závěrečné měření byly před spuštěním testovací sady vybrány kombinace Groq `openai/gpt-oss-20b` s prompty v1 a v2. Výběr vychází pouze z výsledků na sadě dev: obě kombinace dosáhly úplné shody 93,33 % a stejných shod jednotlivých polí. Prompt v1 přitom použil méně tokenů; v2 má podrobnější instrukce, proto je užitečné porovnat oba na nezávislé sadě. Obsah ani výsledky testovací sady se na výběru nepodílely.
 
 Prompt v2 vznikl ještě před následnou ruční kontrolou referenčních odpovědí. Zpřesňuje povinné schéma, rozdíl mezi JSON hodnotou `null` a řetězcem `"null"`, neurčené počty a adresy, osobní odběr i rozlišení objednaných a pouze zmíněných pizz. Po přepočtu na stejném modelu Groq `openai/gpt-oss-20b` a sadě dev mají oba prompty úplnou shodu 93,33 % a stejné shody jednotlivých polí. Průměrná latence činila 0,739 s u v1 a 0,684 s u v2; vstupní tokeny vzrostly z 5 774 na 8 699 a výstupní z 4 844 na 5 142.
 
